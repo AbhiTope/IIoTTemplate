@@ -14,7 +14,7 @@ func HandleLogin(c *gin.Context) {
         return
     }
 
-    if json.Validate() {
+    if !json.Validate() {
         c.JSON(http.StatusUnauthorized, gin.H{"status": "unauthorized"})
         return
     }

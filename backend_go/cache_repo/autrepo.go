@@ -15,9 +15,12 @@ var users []RegisterModel
 
 func (r LoginModel) Validate() bool {
 
-    if r.UserName != "manu" || r.Password != "123" {
-        return true
-    } 
+	for _, user := range users {
+		if user.UserName == r.UserName && user.Password == r.Password {
+			return true
+		}
+	}
+
     return false
 
 }
