@@ -16,7 +16,8 @@ func main() {
 
     r.POST("/login", controller.HandleLogin)
     r.POST("/register", controller.HandleRegister)
-    r.GET("/get", controller.GetUsers)
+    r.GET("/getuser", controller.GetUser)
+    r.GET("/getusers", controller.GetUsers)
 
     r.Run() 
 }

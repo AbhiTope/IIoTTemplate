@@ -43,3 +43,20 @@ func GetUsers(c *gin.Context) {
     c.JSON(http.StatusOK, repo.GetUsers())
 }
 
+func GetUser(c *gin.Context) {
+
+	var userName string
+
+	if err := c.BindJSON(&userName); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+		return
+	}
+
+	result, err := repo.GetUser(userName)
+	if err != nil{
+		c.JSON(http.StatusBadRequest, gin.H{ "error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, result)
+}
+
