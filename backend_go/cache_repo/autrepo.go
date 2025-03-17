@@ -16,41 +16,62 @@ type RegisterModel struct {
     Email string `json:"email" binding:"required"`
     Role string `json:"role" binding:"required"`
     Password string `json:"password" binding:"required"`
+    IsLocked bool
 }
 
 var users []RegisterModel 
 
-func (r LoginModel) Validate() bool {
+func (r RegisterModel) Add() error {
+	users = append(users, r)
+	return nil 
+}
 
+func GetActiveUsers() []RegisterModel {
+	var result []RegisterModel
 	for _, user := range users {
-		if user.UserName == r.UserName && user.Password == r.Password {
-			return true
+		if !user.IsLocked {
+			user.Password = ""
+			result = append(result, user)
 		}
 	}
-
-    return false
-
+    return result
 }
 
-func (r RegisterModel) Add() error {
-    users = append(users, r)
-    return nil 
-}
-
-func GetUsers() []RegisterModel {
-    return users
+func GetAllUsers() []RegisterModel {
+	var result []RegisterModel
+	for _, user := range users {
+			user.Password = ""
+			result = append(result, user)
+	}
+    return result
 }
 
 func GetUser(userName string) (RegisterModel, error){
 
 	for _, user := range users {
 		if user.UserName == userName {
+			user.Password = ""
 			return user, nil
 		}
 	}
 	var result RegisterModel
 
 	return result, errors.New("user not found")
+
+}
+
+func GetPassword(userName string) (string, error){
+
+	for _, user := range users {
+		if user.UserName == userName {
+			if user.IsLocked{
+				return "", errors.New("user is locked")
+			}
+			return user.Password, nil
+		}
+	}
+
+	return "", errors.New("user not found")
 
 }
 

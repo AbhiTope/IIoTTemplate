@@ -15,13 +15,13 @@ func HandleLogin(c *gin.Context) {
         return
     }
 
-    result, err := repo.GetUser(json.UserName)
+    result, err := repo.GetPassword(json.UserName)
     if err != nil{
 	    c.JSON(http.StatusBadRequest, gin.H{ "error": err.Error()})
 	    return
     }
 
-    if !utils.CheckPasswordHash(json.Password, result.Password) {
+    if !utils.CheckPasswordHash(json.Password, result) {
         c.JSON(http.StatusUnauthorized, gin.H{"status": "unauthorized"})
         return
     }
@@ -45,6 +45,7 @@ func HandleRegister(c *gin.Context) {
     }
 
     json.Password = passwordHash
+    json.IsLocked = false
 
     if err := json.Add(); err != nil {
         c.JSON(http.StatusUnauthorized, gin.H{"status": err.Error()})
@@ -55,7 +56,7 @@ func HandleRegister(c *gin.Context) {
 }
 
 func GetUsers(c *gin.Context) {
-    c.JSON(http.StatusOK, repo.GetUsers())
+    c.JSON(http.StatusOK, repo.GetActiveUsers())
 }
 
 func GetUser(c *gin.Context) {
