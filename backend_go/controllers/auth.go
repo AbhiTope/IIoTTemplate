@@ -4,6 +4,7 @@ import (
     "github.com/gin-gonic/gin"
     "net/http"
     "iiot_template/go/cache_repo"
+    "iiot_template/go/utils"
 )
 
 func HandleLogin(c *gin.Context) {
@@ -14,7 +15,13 @@ func HandleLogin(c *gin.Context) {
         return
     }
 
-    if !json.Validate() {
+    result, err := repo.GetUser(json.UserName)
+    if err != nil{
+	    c.JSON(http.StatusBadRequest, gin.H{ "error": err.Error()})
+	    return
+    }
+
+    if !utils.CheckPasswordHash(json.Password, result.Password) {
         c.JSON(http.StatusUnauthorized, gin.H{"status": "unauthorized"})
         return
     }
@@ -31,6 +38,14 @@ func HandleRegister(c *gin.Context) {
         return
     }
 
+    passwordHash, err := utils.HashPassword(json.Password);
+
+    if err != nil {
+	    c.JSON(http.StatusBadRequest, gin.H{ "error": err.Error()})
+    }
+
+    json.Password = passwordHash
+
     if err := json.Add(); err != nil {
         c.JSON(http.StatusUnauthorized, gin.H{"status": err.Error()})
         return
@@ -45,10 +60,10 @@ func GetUsers(c *gin.Context) {
 
 func GetUser(c *gin.Context) {
 
-	var userName string
+	userName := c.DefaultQuery("userName", "") // Default value is empty string
 
-	if err := c.BindJSON(&userName); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+	if userName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "userName query parameter is required"})
 		return
 	}
 

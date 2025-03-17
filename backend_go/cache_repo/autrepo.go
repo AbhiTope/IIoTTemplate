@@ -50,7 +50,7 @@ func GetUser(userName string) (RegisterModel, error){
 	}
 	var result RegisterModel
 
-	return result, errors.New("user now found")
+	return result, errors.New("user not found")
 
 }
 
