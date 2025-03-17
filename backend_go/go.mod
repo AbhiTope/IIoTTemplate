@@ -3,6 +3,7 @@ module iiot_template/go
 go 1.21.4
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.10.0
 	golang.org/x/crypto v0.23.0
 )
