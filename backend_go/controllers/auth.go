@@ -26,7 +26,14 @@ func HandleLogin(c *gin.Context) {
         return
     }
 
-    c.JSON(http.StatusOK, gin.H{"status": "you are logged in"})
+    token, err := utils.GenerateToken(json.UserName, "admin")
+
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Error Login Please try again."})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
 
