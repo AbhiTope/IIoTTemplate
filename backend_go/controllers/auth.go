@@ -3,6 +3,7 @@ package controller
 import (
     "github.com/gin-gonic/gin"
     "net/http"
+    "strings"
     "iiot_template/go/cache_repo"
     "iiot_template/go/utils"
 )
@@ -36,6 +37,38 @@ func HandleLogin(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
+func Validate(c *gin.Context){
+
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Authorization header is required"})
+			return
+		}
+
+		// The token should be in the format "Bearer <token>"
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+		if tokenString == authHeader { // if no "Bearer" prefix
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid token format"})
+			return
+		}
+
+		claims, err := utils.ValidateToken(tokenString)
+
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{ "message": err.Error()})
+			return
+		}
+
+		c.Set("username", claims.Username)
+		c.Set("role", claims.Role)
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "valid token",
+			"username": claims.Username,
+			"role": claims.Role,
+		})
+}
+
 
 func HandleRegister(c *gin.Context) {
 
@@ -52,6 +85,7 @@ func HandleRegister(c *gin.Context) {
     }
 
     json.Password = passwordHash
+    json.Role = "user"
     json.IsLocked = false
 
     if err := json.Add(); err != nil {
